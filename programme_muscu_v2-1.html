@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon Programme Muscu</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f13; --surface: #16181f; --surface2: #1a1c24; --surface3: #13151b;
+    --border: #2a2d3a; --text: #e8eaf2; --muted: #7a7e92; --soft: #c8cad8;
+    --accent: #e8ff47; --blue: #47c8ff; --purple: #b48cff;
+    --orange: #ffb347; --red: #ff6b6b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.6; }
+
+  /* ── HEADER ── */
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 32px 20px 24px; text-align: center; }
+  .badge { display: inline-block; background: rgba(232,255,71,.1); border: 1px solid rgba(232,255,71,.3); color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; margin-bottom: 14px; }
+  .header h1 { font-size: clamp(30px, 7vw, 56px); font-weight: 900; line-height: 1; }
+  .header h1 span { color: var(--accent); }
+  .header p { margin-top: 10px; color: var(--muted); font-size: 13px; max-width: 460px; margin-left: auto; margin-right: auto; }
+  .header p strong { color: var(--soft); }
+
+  /* ── ALERTS ── */
+  .alerts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 10px; padding: 16px 20px; max-width: 1100px; margin: 0 auto; }
+  .alert { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; gap: 10px; }
+  .alert-icon { font-size: 20px; flex-shrink: 0; }
+  .alert-title { font-weight: 700; font-size: 12px; margin-bottom: 3px; }
+  .alert-body { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+  /* ── NAV TABS ── */
+  .nav { display: flex; gap: 6px; padding: 0 20px 16px; max-width: 1100px; margin: 0 auto; flex-wrap: wrap; }
+  .nav button { background: var(--surface); color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-weight: 700; font-size: 12px; cursor: pointer; font-family: inherit; transition: all .15s; }
+  .nav button:hover { color: var(--text); border-color: #3a3d4a; }
+  .nav button.active-all { background: var(--accent); color: #0e0f13; border-color: var(--accent); }
+
+  /* ── CONTENT ── */
+  .content { max-width: 1100px; margin: 0 auto; padding: 0 20px 20px; }
+
+  /* ── REST DAY ── */
+  .rest-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; text-align: center; opacity: .75; margin-bottom: 16px; }
+  .rest-block .rest-icon { font-size: 40px; display: block; margin-bottom: 8px; }
+  .rest-block h3 { font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+  .rest-block p { color: var(--muted); font-size: 13px; max-width: 420px; margin: 0 auto; }
+
+  /* ── DAY BLOCK ── */
+  .day-block { margin-bottom: 24px; }
+  .day-header { background: var(--surface); border: 1px solid var(--border); border-radius: 14px 14px 0 0; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .day-label { font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+  .day-subtitle { font-weight: 700; font-size: 18px; margin-top: 3px; }
+  .day-type { font-weight: 700; font-size: 13px; padding: 5px 14px; border-radius: 9px; letter-spacing: 1px; }
+  .dur-bar { background: var(--surface); border-left: 1px solid var(--border); border-right: 1px solid var(--border); padding: 8px 20px; display: flex; gap: 20px; flex-wrap: wrap; }
+  .dur-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .dur-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dur-label { color: var(--muted); }
+  .dur-val { font-weight: 700; }
+  .exercises-wrap { background: var(--surface); border: 1px solid var(--border); border-top: none; border-radius: 0 0 14px 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+
+  /* ── EXERCISE CARD ── */
+  .ex-card { background: var(--surface2); border-radius: 14px; overflow: hidden; }
+  .ex-card.warmup { border: 1px solid rgba(255,179,71,.25); }
+  .ex-card:not(.warmup) { border: 1px solid var(--border); }
+  .ex-header { padding: 14px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; user-select: none; }
+  .ex-header:hover { background: rgba(255,255,255,.02); }
+  .ex-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .ex-name { font-weight: 700; font-size: 14px; }
+  .ex-tag { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+  .ex-muscles { margin-top: 4px; font-size: 12px; color: var(--muted); }
+  .ex-position-pill { margin-top: 8px; display: inline-flex; align-items: center; background: var(--surface3); border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; font-size: 12.5px; font-weight: 600; color: var(--soft); }
+  .ex-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .ex-sets { font-weight: 800; font-size: 15px; color: var(--accent); }
+  .ex-pause { font-size: 11px; color: var(--muted); }
+  .ex-toggle { font-size: 11px; color: #3a4060; }
+
+  /* ── EXPANDABLE ── */
+  .ex-body { border-top: 1px solid var(--border); background: var(--surface3); padding: 14px 16px; display: none; }
+  .ex-body.open { display: block; }
+  .ex-body-title { font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
+  .step-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .step-item { display: flex; gap: 10px; align-items: flex-start; }
+  .step-num { background: var(--accent); color: #0e0f13; font-weight: 800; font-size: 11px; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .step-text { font-size: 13px; color: var(--soft); line-height: 1.5; }
+  .ex-note { margin-top: 12px; background: rgba(232,255,71,.05); border: 1px solid rgba(232,255,71,.15); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #b0b8a0; font-style: italic; line-height: 1.5; }
+
+  /* ── CARDIO BLOCK ── */
+  .cardio-block { background: rgba(71,200,255,.05); border: 1px solid rgba(71,200,255,.2); border-radius: 12px; padding: 12px 16px; }
+  .cardio-title { font-weight: 700; font-size: 13px; color: var(--blue); margin-bottom: 8px; }
+  .cardio-step { display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; margin-bottom: 4px; }
+  .cardio-time { background: rgba(71,200,255,.15); color: var(--blue); font-weight: 700; font-size: 11px; padding: 2px 8px; border-radius: 5px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+  .cardio-desc { color: var(--soft); }
+
+  /* ── SECTION TITLE ── */
+  .section-title { font-weight: 900; font-size: 20px; display: flex; align-items: center; gap: 14px; max-width: 1100px; margin: 28px auto 16px; padding: 0 20px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── CONSEILS ── */
+  .conseils-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 12px; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+  .conseil-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+  .conseil-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+  .conseil-title { font-weight: 700; font-size: 13px; margin-bottom: 5px; }
+  .conseil-body { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+
+  /* ── PROGRESSION ── */
+  .prog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 12px; max-width: 1100px; margin: 0 auto; padding: 0 20px 50px; }
+  .prog-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .prog-week { font-weight: 800; font-size: 15px; margin-bottom: 12px; }
+  .prog-item { display: flex; gap: 8px; margin-bottom: 8px; font-size: 12.5px; color: #9a9cb0; align-items: flex-start; }
+  .prog-arrow { flex-shrink: 0; margin-top: 1px; font-weight: 700; }
+
+  /* ── FOOTER ── */
+  footer { text-align: center; padding: 14px; color: #2a2d3a; font-size: 11px; border-top: 1px solid #1a1c22; margin-top: 10px; }
+
+  @media (max-width: 600px) {
+    .alerts, .nav, .content, .conseils-grid, .prog-grid, .section-title { padding-left: 14px; padding-right: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="badge">100% Machines · POTS + Asthme · Reprise de zéro</div>
+  <h1>MON PROGRAMME <span>MUSCU</span></h1>
+  <p>Clique sur <strong>▼ Comment faire</strong> sur chaque exercice pour voir la position étape par étape</p>
+</div>
+
+<!-- ALERTS -->
+<div class="alerts">
+  <div class="alert" style="border-left:3px solid var(--accent)">
+    <div class="alert-icon">⚡</div>
+    <div><div class="alert-title" style="color:var(--accent)">POTS</div><div class="alert-body">500ml d'eau avant. Lève-toi toujours lentement après chaque machine. Vertiges → reste assis, respire.</div></div>
+  </div>
+  <div class="alert" style="border-left:3px solid var(--blue)">
+    <div class="alert-icon">💨</div>
+    <div><div class="alert-title" style="color:var(--blue)">ASTHME</div><div class="alert-body">Pompe toujours dans ta poche. Cardio = allure où tu peux parler normalement. Sifflement → stop + pompe.</div></div>
+  </div>
+  <div class="alert" style="border-left:3px solid var(--orange)">
+    <div class="alert-icon">🎯</div>
+    <div><div class="alert-title" style="color:var(--orange)">SEMAINES 1–2</div><div class="alert-body">Charges très légères. Apprendre les mouvements, pas la performance. Demande de l'aide aux coachs.</div></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav" id="nav"></div>
+
+<!-- CONTENT -->
+<div class="content" id="content"></div>
+
+
+<footer>Programme adapté POTS &amp; Asthme modéré · Consulte ton médecin avant toute modification</footer>
+
+<script>
+const DAYS = [
+  {
+    id:1, label:"Lundi", type:"PUSH", typeColor:"#e8ff47",
+    subtitle:"Pectoraux · Épaules · Triceps",
+    dur:{warm:"5 min",work:"~35 min",cardio:"10 min"},
+    exercises:[
+      { name:"Tapis de marche", tag:"ÉCHAUFFEMENT", tagColor:"#ffb347", sets:"5 MIN", pause:null,
+        position:"🚶 Debout sur le tapis",
+        steps:["Monte sur le tapis et appuie sur Start","Marche à allure très tranquille, pente 0%","Tu dois pouvoir parler sans effort"],
+        muscles:"Échauffement général — circulation sanguine",
+        note:"⚠️ POTS : ne saute jamais cet échauffement. Il active la circulation avant de passer aux machines." },
+      { name:"Pec deck / Butterfly", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 12", pause:"90 sec",
+        position:"🪑 Assis, dos contre le dossier",
+        steps:["Règle le siège : tes coudes doivent être à hauteur de tes épaules","Assieds-toi, dos bien calé contre le dossier","Pose tes avant-bras contre les coussins latéraux","Rapproche les bras vers le centre comme pour faire un câlin, puis reviens lentement"],
+        muscles:"💪 Pectoraux (principal) · Épaules (secondaire)",
+        note:"Sens le milieu de la poitrine se contracter quand les bras se rejoignent devant toi." },
+      { name:"Développé pectoraux (chest press)", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 10", pause:"90 sec",
+        position:"🪑 Assis, dos contre le dossier",
+        steps:["Règle le siège : les poignées doivent être à hauteur de ta poitrine","Assieds-toi, dos bien calé, pieds à plat sur le sol","Saisis les poignées et pousse vers l'avant jusqu'à presque étendre les bras","Reviens lentement — la descente est aussi importante que la poussée"],
+        muscles:"💪 Pectoraux (principal) · Épaules · Triceps (secondaires)",
+        note:"Ne verrouille pas complètement les coudes en bout de course." },
+      { name:"Développé épaules (shoulder press)", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 10", pause:"90 sec",
+        position:"🪑 Assis, dos contre le dossier",
+        steps:["Règle le siège : les poignées doivent être à hauteur de tes épaules","Assieds-toi, dos bien appuyé contre le dossier","Pousse les poignées vers le haut jusqu'à presque étendre les bras","Redescends lentement jusqu'à la hauteur des épaules"],
+        muscles:"💪 Épaules (principal) · Triceps (secondaire)",
+        note:"Commence vraiment léger — les épaules sont une articulation fragile." },
+      { name:"Triceps poulie haute (corde)", tag:"CÂBLE", tagColor:"#b48cff", sets:"3 × 12", pause:"75 sec",
+        position:"🧍 Debout face à la tour de câbles",
+        steps:["Règle la poulie en position haute, accroche la corde","Tiens-toi debout face à la tour, légèrement penché en avant","Saisis la corde à deux mains, coudes collés contre ton corps","Pousse les mains vers le bas jusqu'à étendre complètement les bras","Remonte lentement — seuls les avant-bras bougent, les coudes restent fixes"],
+        muscles:"💪 Triceps (principal)",
+        note:"Si les coudes partent vers l'avant, c'est que la charge est trop lourde." },
+    ],
+    cardio:{ icon:"🚶", title:"Cardio fin de séance — Tapis", steps:[
+      {time:"5 min",desc:"Marche normale, allure confortable — tu dois pouvoir parler"},
+      {time:"3 min",desc:"Légère accélération — pas une course, juste un peu plus dynamique"},
+      {time:"2 min",desc:"Retour à marche tranquille"},
+    ]},
+  },
+  { id:2, label:"Mardi", rest:true, restIcon:"🧘", restTitle:"Récupération active", restText:"Stretching léger 10–15 min ou marche de 20 min dehors. Aucune charge. Le muscle se reconstruit pendant le repos." },
+  {
+    id:3, label:"Mercredi", type:"PULL", typeColor:"#47c8ff",
+    subtitle:"Grand dorsal · Biceps · Trapèzes",
+    dur:{warm:"5 min",work:"~35 min",cardio:"12 min"},
+    exercises:[
+      { name:"Tapis de marche", tag:"ÉCHAUFFEMENT", tagColor:"#ffb347", sets:"5 MIN", pause:null,
+        position:"🚶 Debout sur le tapis",
+        steps:["Marche tranquille 5 minutes, pente 0%, allure douce."],
+        muscles:"Échauffement général", note:"" },
+      { name:"Tirage poulie basse (câble assis)", tag:"CÂBLE", tagColor:"#b48cff", sets:"3 × 10", pause:"90 sec",
+        position:"🪑 Assis face à la tour, pieds sur les appuis",
+        steps:["Assieds-toi sur le siège, face à la tour de câbles","Pose tes pieds sur les deux appuis et tends légèrement les jambes","Dos bien droit — ne te penche pas en arrière","Saisis la poignée à deux mains et tire vers ton ventre en ramenant les coudes derrière toi","Reviens lentement les bras tendus vers la tour"],
+        muscles:"💪 Grand dorsal · Trapèzes (principaux) · Biceps (secondaire)",
+        note:"Sens les omoplates se rapprocher quand tu tires. Ne te balance pas." },
+      { name:"Tirage poulie haute (lat machine)", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 10", pause:"90 sec",
+        position:"🪑 Assis face à la machine, cuisses sous les coussinets",
+        steps:["Assieds-toi et glisse tes cuisses sous les coussinets rembourrés pour te bloquer","Lève les bras et saisis la barre large au-dessus de ta tête, prise large","Tire la barre vers ta poitrine en descendant les coudes sur les côtés","Remonte lentement les bras en gardant le contrôle"],
+        muscles:"💪 Grand dorsal (principal) · Biceps · Trapèzes (secondaires)",
+        note:"Tire toujours vers la poitrine, jamais derrière la nuque." },
+      { name:"Rowing machine (poitrine appuyée)", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 12", pause:"90 sec",
+        position:"🪑 Assis, poitrine contre le coussin avant",
+        steps:["Assieds-toi et règle la hauteur pour que le coussin soit bien contre ta poitrine","Appuie ta poitrine contre le coussin et saisis les poignées","Tire les poignées vers toi en ramenant les coudes bien en arrière","Serre les omoplates ensemble au moment de la contraction","Reviens lentement, bras tendus"],
+        muscles:"💪 Grand dorsal · Trapèzes · Rhomboïdes (principaux) · Biceps (secondaire)",
+        note:"La poitrine appuyée contre le coussin te protège le dos et t'empêche de tricher." },
+      { name:"Curl biceps machine", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 12", pause:"75 sec",
+        position:"🪑 Assis, bras posés sur le coussin incliné",
+        steps:["Assieds-toi face à la machine et pose les deux bras sur le coussin incliné","Les coudes sont calés en bas du coussin — ils ne bougent pas","Saisis les poignées et ramène-les vers toi en pliant les bras","Redescends lentement jusqu'en bas (bras presque tendus)"],
+        muscles:"💪 Biceps (principal) · Avant-bras (secondaire)",
+        note:"Descends vraiment jusqu'en bas à chaque répétition pour travailler toute l'amplitude." },
+    ],
+    cardio:{ icon:"🚴", title:"Cardio fin de séance — Vélo stationnaire", steps:[
+      {time:"4 min",desc:"Pédalage très léger, résistance minimale"},
+      {time:"6 min",desc:"Allure modérée confortable — respiration régulière"},
+      {time:"2 min",desc:"Pédalage lent, récupération"},
+    ]},
+  },
+  { id:4, label:"Jeudi", rest:true, restIcon:"💤", restTitle:"Repos complet", restText:"Dors bien, mange suffisamment, bois bien. Pas d'entraînement même léger si tu es fatigué." },
+  {
+    id:5, label:"Vendredi", type:"LEGS", typeColor:"#ff6b6b",
+    subtitle:"Quadriceps · Ischio-jambiers · Fessiers · Mollets",
+    dur:{warm:"7 min",work:"~35 min",cardio:"8 min"},
+    exercises:[
+      { name:"Tapis légèrement incliné", tag:"ÉCHAUFFEMENT", tagColor:"#ffb347", sets:"7 MIN", pause:null,
+        position:"🚶 Debout sur le tapis, légère pente",
+        steps:["Monte sur le tapis, règle la pente à 2 ou 3%","Marche à allure tranquille pendant 7 minutes"],
+        muscles:"Échauffement circulation jambes",
+        note:"⚠️ POTS : la séance jambes fait descendre le sang vers le bas. L'échauffement plus long est obligatoire. Bois bien avant." },
+      { name:"Presse à cuisses (leg press)", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 12", pause:"2 min",
+        position:"🛋️ Semi-allongé dans le siège incliné",
+        steps:["Installe-toi dans le siège incliné en arrière — tu es allongé à 45°","Pose tes deux pieds à plat sur la grande plateforme, à largeur d'épaules","Déverrouille la sécurité (poignées sur les côtés)","Pousse la plateforme vers le haut en étendant les jambes","Reviens lentement — les genoux doivent rester dans l'axe des pieds"],
+        muscles:"💪 Quadriceps · Fessiers (principaux) · Ischios (secondaire)",
+        note:"Charge légère. Genoux ne dépassent pas les orteils. La position allongée est parfaite pour le POTS." },
+      { name:"Leg extension (quadriceps)", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 12", pause:"90 sec",
+        position:"🪑 Assis, chevilles sous le coussin",
+        steps:["Assieds-toi, dos calé contre le dossier","Règle le coussin pour qu'il repose juste au-dessus de tes chevilles","Tiens les poignées sur les côtés du siège","Soulève les jambes vers le haut jusqu'à ce qu'elles soient tendues","Tiens 1 seconde en haut, redescends lentement"],
+        muscles:"💪 Quadriceps (principal)",
+        note:"Ne verrouille pas complètement les genoux en haut." },
+      { name:"Leg curl couché (ischio-jambiers)", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 12", pause:"90 sec",
+        position:"⬇️ Allongé sur le ventre",
+        steps:["Allonge-toi sur le ventre sur la machine","Règle le coussin pour qu'il soit juste au-dessus de tes talons","Tiens les poignées de chaque côté","Ramène les talons vers tes fesses en pliant les jambes","Redescends lentement jusqu'en bas"],
+        muscles:"💪 Ischio-jambiers (principal) · Fessiers (secondaire)",
+        note:"Position allongée — idéale pour le POTS. Mouvement lent et contrôlé." },
+      { name:"Abducteurs (machine hanche)", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 15", pause:"75 sec",
+        position:"🪑 Assis, coussins sur l'extérieur des genoux",
+        steps:["Assieds-toi dans la machine, dos contre le dossier","Les coussins rembourrés sont contre l'extérieur de tes genoux","Écarte les jambes vers l'extérieur en poussant contre les coussins","Reviens lentement les jambes ensemble"],
+        muscles:"💪 Fessiers · Hanche externe (principaux)",
+        note:"Mouvement lent — tu dois sentir les fessiers et la hanche travailler." },
+      { name:"Mollets machine assise", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 15", pause:"60 sec",
+        position:"🪑 Assis, coussin sur les cuisses",
+        steps:["Assieds-toi, le coussin de la machine repose sur tes cuisses pour les bloquer","Pose tes pieds sur le rebord, talons légèrement dans le vide","Monte sur la pointe des pieds le plus haut possible","Tiens 1 seconde en haut, puis descends lentement le talon vers le bas"],
+        muscles:"💪 Mollets (principal)",
+        note:"Les mollets sont la pompe veineuse des jambes — particulièrement bénéfique pour le POTS !" },
+    ],
+    cardio:{ icon:"🚶", title:"Cardio fin de séance — Marche uniquement", steps:[
+      {time:"8 min",desc:"Marche tapis allure normale. Pas d'accélération ce jour-là — les jambes sont déjà chargées."},
+    ]},
+  },
+  {
+    id:6, label:"Samedi", type:"CORE", typeColor:"#b48cff",
+    subtitle:"Abdominaux · Obliques · Lombaires",
+    dur:{warm:"5 min",work:"~25 min",cardio:"10 min"},
+    exercises:[
+      { name:"Tapis de marche", tag:"ÉCHAUFFEMENT", tagColor:"#ffb347", sets:"5 MIN", pause:null,
+        position:"🚶 Debout sur le tapis",
+        steps:["Marche tranquille 5 minutes."],
+        muscles:"Échauffement général", note:"" },
+      { name:"Crunch machine (abdominaux)", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 15", pause:"60 sec",
+        position:"🪑 Assis, poignées de chaque côté de la tête",
+        steps:["Assieds-toi dans la machine, règle le siège","Tiens les poignées de chaque côté de ta tête (ou croise les bras sur la poitrine)","Contracte le ventre et penche le buste vers l'avant contre la résistance","Reviens lentement à la position de départ"],
+        muscles:"💪 Abdominaux (principal) · Obliques (secondaire)",
+        note:"Expire fort au moment de la contraction. Ne tire pas avec les bras ni le cou." },
+      { name:"Rotation du buste (câble)", tag:"CÂBLE", tagColor:"#b48cff", sets:"3 × 12 / côté", pause:"60 sec",
+        position:"🧍 Debout de côté face à la tour",
+        steps:["Règle la poulie à hauteur de ta poitrine","Tiens-toi debout de côté par rapport à la tour","Tiens la poignée à deux mains, bras tendus devant toi","Fais pivoter ton buste vers le côté opposé à la tour","Les hanches et les pieds restent fixes — seul le buste tourne","Reviens lentement. Fais les deux côtés."],
+        muscles:"💪 Obliques (principal) · Abdominaux (secondaire)",
+        note:"Si tes hanches bougent, la charge est trop lourde." },
+      { name:"Extension lombaires machine", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 12", pause:"75 sec",
+        position:"🪑 Assis, grand coussin dans le dos",
+        steps:["Assieds-toi dans la machine, le grand coussin rembourré contre ton dos","Croise les bras sur ta poitrine","Pousse en arrière avec le dos contre le coussin pour redresser le buste","Reviens lentement vers l'avant"],
+        muscles:"💪 Lombaires (principal) · Fessiers (secondaire)",
+        note:"Amplitude modérée — pas besoin de forcer jusqu'au bout." },
+      { name:"Relevé de genoux (chaise romaine)", tag:"MACHINE", tagColor:"#47c8ff", sets:"3 × 10", pause:"75 sec",
+        position:"🪑 Suspendu, bras sur les accoudoirs",
+        steps:["Grimpe dans la chaise romaine et appuie-toi sur les deux accoudoirs rembourrés","Ton dos repose contre le dossier vertical","Tes jambes pendent librement dans le vide","Ramène les deux genoux lentement vers ta poitrine","Redescends lentement — ne laisse pas tomber les jambes"],
+        muscles:"💪 Abdominaux · Fléchisseurs de hanche (principaux)",
+        note:"Ne te balance pas pour prendre de l'élan. Le mouvement doit être lent et contrôlé." },
+    ],
+    cardio:{ icon:"🚴", title:"Cardio fin de séance — Vélo stationnaire", steps:[
+      {time:"10 min",desc:"Vélo léger, résistance faible. Tu as fait une semaine complète 💪"},
+    ]},
+  },
+  { id:7, label:"Dimanche", rest:true, restIcon:"🌙", restTitle:"Repos total", restText:"Dors bien, mange bien, bois bien. Le prochain cycle recommence lundi." },
+];
+
+let activeDay = null;
+let activeSection = 'programme';
+
+function buildNav() {
+  const nav = document.getElementById('nav');
+  nav.innerHTML = '';
+
+  const btnAll = document.createElement('button');
+  btnAll.textContent = 'Tout voir';
+  btnAll.className = (activeSection === 'programme' && activeDay === null) ? 'active-all' : '';
+  btnAll.onclick = () => { activeDay = null; activeSection = 'programme'; buildNav(); buildContent(); };
+  nav.appendChild(btnAll);
+
+  DAYS.forEach((d, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = d.label;
+    if (activeSection === 'programme' && activeDay === i) {
+      btn.style.background = d.rest ? '#2a2d3a' : d.typeColor;
+      btn.style.color = d.rest ? '#e8eaf2' : '#0e0f13';
+      btn.style.borderColor = d.typeColor || '#2a2d3a';
+    }
+    btn.onclick = () => { activeDay = (activeSection === 'programme' && activeDay === i) ? null : i; activeSection = 'programme'; buildNav(); buildContent(); };
+    nav.appendChild(btn);
+  });
+
+  const sep = document.createElement('div');
+  sep.style.cssText = 'width:1px;background:#2a2d3a;align-self:stretch;margin:0 4px;';
+  nav.appendChild(sep);
+
+  const btnC = document.createElement('button');
+  btnC.textContent = '💡 Conseils';
+  if (activeSection === 'conseils') { btnC.style.background = '#ffb347'; btnC.style.color = '#0e0f13'; btnC.style.borderColor = '#ffb347'; }
+  btnC.onclick = () => { activeSection = 'conseils'; activeDay = null; buildNav(); buildContent(); };
+  nav.appendChild(btnC);
+
+  const btnP = document.createElement('button');
+  btnP.textContent = '📈 Progression';
+  if (activeSection === 'progression') { btnP.style.background = '#47c8ff'; btnP.style.color = '#0e0f13'; btnP.style.borderColor = '#47c8ff'; }
+  btnP.onclick = () => { activeSection = 'progression'; activeDay = null; buildNav(); buildContent(); };
+  nav.appendChild(btnP);
+}
+
+function buildContent() {
+  const content = document.getElementById('content');
+  content.innerHTML = '';
+  if (activeSection === 'conseils') { content.appendChild(buildConseils()); return; }
+  if (activeSection === 'progression') { content.appendChild(buildProgression()); return; }
+  const toShow = activeDay !== null ? [DAYS[activeDay]] : DAYS;
+  toShow.forEach(day => content.appendChild(buildDay(day)));
+}
+
+function buildConseils() {
+  const tips = [
+    {icon:"⚙️", title:"Réglage des machines", body:"La première semaine, demande à un coach de te montrer le réglage de chaque machine. Un mauvais réglage = mauvaise posture = risque de blessure."},
+    {icon:"💧", title:"Hydratation (POTS)", body:"Bois 500ml d'eau dans l'heure avant la séance. Continue à boire entre chaque série. Certains patients POTS bénéficient d'une boisson légèrement salée — demande à ton médecin."},
+    {icon:"🐢", title:"Lève-toi lentement", body:"Après chaque exercice assis ou allongé, reste 3 à 5 secondes avant de te lever. Les transitions rapides sont le principal déclencheur de malaise POTS en salle."},
+    {icon:"😮‍💨", title:"Respiration", body:"Règle d'or : expire sur l'effort, inspire sur le retour. Ne bloque jamais ta respiration. Si tu siffles : stop, assieds-toi, prends ta pompe."},
+    {icon:"🛑", title:"Signaux d'arrêt immédiat", body:"Vertiges, palpitations fortes, vision trouble, oppression thoracique, sifflement → pose-toi immédiatement. Ce n'est pas un échec."},
+    {icon:"📝", title:"Note tes charges", body:"Garde une note sur ton téléphone avec les charges utilisées sur chaque machine. Ça te permet de voir ta progression semaine après semaine."},
+    {icon:"📈", title:"Progression lente = durable", body:"N'augmente pas les charges si tu n'as pas bien récupéré. La règle : +10% max par semaine. Régulier et lent vaut mieux qu'intense et blessé."},
+    {icon:"📅", title:"Régularité avant intensité", body:"4 séances légères régulières valent bien mieux qu'une séance intense suivie d'abandon. L'objectif du premier mois : prendre l'habitude."},
+    {icon:"🛏️", title:"Sommeil", body:"7 à 9 heures de sommeil par nuit est non-négociable pour la reconstruction musculaire. Si tu dors mal, tes gains seront très limités."},
+  ];
+  const wrap = document.createElement('div');
+  wrap.className = 'conseils-grid';
+  wrap.style.cssText = 'padding:0;padding-bottom:30px;';
+  tips.forEach(t => {
+    wrap.innerHTML += `<div class="conseil-card"><span class="conseil-icon">${t.icon}</span><div><div class="conseil-title">${t.title}</div><div class="conseil-body">${t.body}</div></div></div>`;
+  });
+  return wrap;
+}
+
+function buildProgression() {
+  const weeks = [
+    {label:"Semaines 1–2", color:"#47c8ff", items:["Charges très légères — apprendre les réglages de chaque machine","Demande à un coach de te montrer chaque machine la 1ère fois","Cardio max 10 min par séance","Objectif : prendre les habitudes, pas la performance"]},
+    {label:"Semaines 3–4", color:"#e8ff47", items:["Augmenter légèrement les charges (+1 ou 2 crans)","Cardio : +2 à 3 min par séance","Viser 3 séries complètes sur tous les exercices","Les mouvements doivent commencer à être automatiques"]},
+    {label:"Semaines 5–6", color:"#ffb347", items:["Passer à 4 séries sur les exercices principaux si bien récupéré","Cardio : tester 15 min léger","Si fatigue persistante, reste à 3 séries sans forcer","Réévaluer avec ton médecin"]},
+    {label:"Mois 2+", color:"#ff6b6b", items:["Programme plus intense si le corps suit bien","Commencer à ajuster l'alimentation (protéines)","Cardio fractionné très doux si l'asthme le permet","Suivi médical POTS régulier — ajuster selon les résultats"]},
+  ];
+  const wrap = document.createElement('div');
+  wrap.className = 'prog-grid';
+  wrap.style.cssText = 'padding:0;padding-bottom:30px;';
+  weeks.forEach(w => {
+    const items = w.items.map(it => `<div class="prog-item"><span class="prog-arrow" style="color:${w.color}">→</span><span>${it}</span></div>`).join('');
+    wrap.innerHTML += `<div class="prog-card" style="border-top:3px solid ${w.color}"><div class="prog-week" style="color:${w.color}">${w.label}</div>${items}</div>`;
+  });
+  return wrap;
+}
+
+function buildDay(day) {
+  if (day.rest) {
+    const d = document.createElement('div');
+    d.className = 'rest-block';
+    d.innerHTML = `<span class="rest-icon">${day.restIcon}</span><h3>${day.label} — ${day.restTitle}</h3><p>${day.restText}</p>`;
+    return d;
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'day-block';
+
+  // Header
+  wrap.innerHTML = `
+    <div class="day-header">
+      <div>
+        <div class="day-label">Jour ${day.id} · ${day.label}</div>
+        <div class="day-subtitle">${day.subtitle}</div>
+      </div>
+      <div class="day-type" style="background:${day.typeColor}20;border:1px solid ${day.typeColor}55;color:${day.typeColor}">${day.type}</div>
+    </div>
+    <div class="dur-bar">
+      <div class="dur-item"><div class="dur-dot" style="background:#ffb347"></div><span class="dur-label">Échauffement</span><span class="dur-val">${day.dur.warm}</span></div>
+      <div class="dur-item"><div class="dur-dot" style="background:#e8ff47"></div><span class="dur-label">Musculation</span><span class="dur-val">${day.dur.work}</span></div>
+      <div class="dur-item"><div class="dur-dot" style="background:#47c8ff"></div><span class="dur-label">Cardio</span><span class="dur-val">${day.dur.cardio}</span></div>
+    </div>
+  `;
+
+  const exWrap = document.createElement('div');
+  exWrap.className = 'exercises-wrap';
+
+  day.exercises.forEach((ex, idx) => {
+    const card = document.createElement('div');
+    card.className = 'ex-card' + (ex.tag === 'ÉCHAUFFEMENT' ? ' warmup' : '');
+
+    const bodyId = `body-${day.id}-${idx}`;
+    card.innerHTML = `
+      <div class="ex-header" onclick="toggleEx('${bodyId}', this)">
+        <div style="flex:1">
+          <div class="ex-name-row">
+            <span class="ex-name">${ex.name}</span>
+            <span class="ex-tag" style="background:${ex.tagColor}18;border:1px solid ${ex.tagColor}44;color:${ex.tagColor}">${ex.tag}</span>
+          </div>
+          <div class="ex-muscles">${ex.muscles}</div>
+          <div class="ex-position-pill">${ex.position}</div>
+        </div>
+        <div class="ex-right">
+          <span class="ex-sets">${ex.sets}</span>
+          ${ex.pause ? `<span class="ex-pause">⏱ Pause ${ex.pause}</span>` : ''}
+          <span class="ex-toggle">▼ Comment faire</span>
+        </div>
+      </div>
+      <div class="ex-body" id="${bodyId}">
+        <div class="ex-body-title">Comment se positionner</div>
+        <ul class="step-list">
+          ${ex.steps.map((s,i) => `<li class="step-item"><span class="step-num">${i+1}</span><span class="step-text">${s}</span></li>`).join('')}
+        </ul>
+        ${ex.note ? `<div class="ex-note">💡 ${ex.note}</div>` : ''}
+      </div>
+    `;
+    exWrap.appendChild(card);
+  });
+
+  // Cardio
+  const cardioDiv = document.createElement('div');
+  cardioDiv.className = 'cardio-block';
+  cardioDiv.innerHTML = `
+    <div class="cardio-title">${day.cardio.icon} ${day.cardio.title}</div>
+    ${day.cardio.steps.map(s => `<div class="cardio-step"><span class="cardio-time">${s.time}</span><span class="cardio-desc">${s.desc}</span></div>`).join('')}
+  `;
+  exWrap.appendChild(cardioDiv);
+  wrap.appendChild(exWrap);
+  return wrap;
+}
+
+function toggleEx(id, header) {
+  const body = document.getElementById(id);
+  const toggle = header.querySelector('.ex-toggle');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open');
+  toggle.textContent = isOpen ? '▼ Comment faire' : '▲ Masquer';
+}
+
+buildNav();
+buildContent();
+</script>
+</body>
+</html>
